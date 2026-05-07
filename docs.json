@@ -81,7 +81,7 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Шууд эхлэх",
+      "label": "Одоо эхлэх",
       "href": "/quickstart"
     }
   },
