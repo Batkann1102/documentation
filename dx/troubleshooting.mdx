@@ -1,5 +1,5 @@
 ---
-title: "Troubleshooting"
+title: "Алдаа засах"
 description: "thesis-java-framework ашиглах үед нийтлэг гарч болзошгүй алдаанууд ба засварлах зөвлөмжүүд."
 icon: "life-ring"
 ---
@@ -30,7 +30,7 @@ mn.edu.num.exception.BeanCreationException:
 **Засвар:**
 - Dependency tree-г өөрчилж, нэг талыг event-bus, factory, эсвэл setter injection-аар оруулах
 - Constructor injection-аас field injection руу шилжүүлж late-bind-аар асуудлыг хойшлуулах
-- [Visualization](/dx/visualization) ашиглан loop-ыг graphically тогтоох
+- [Дүрслэл](/dx/visualization) ашиглан loop-ыг graphically тогтоох
 
 ## Олон bean ижил тип
 
@@ -104,10 +104,10 @@ mvn -X test
 | `ClassNotFoundException` | `mvn -DskipTests package`-ыг scope-аас өмнө ажиллуул |
 | `tests skipped` | surefire 3.x пакетийн forkCount = 0 байгаа эсэхийг шалга |
 
-## Benchmark-д bean олдсонгүй
+## Үзүүлэлт-д bean олдсонгүй
 
 ```text
-[Benchmark] Skipping startup measurement: Benchmark-д bean байхгүй
+[Үзүүлэлт] Skipping ачаалж эхлэх (startup) measurement: Үзүүлэлт-д bean байхгүй
 ```
 
 **Шалтгаан:** `--package` өгсөн package доор `@Component`/`@Service` класс байхгүй.
@@ -120,7 +120,7 @@ java -cp target/thesis-java-framework-1.0.0.jar:target/test-classes \
      --package mn.edu.num.app.scope
 ```
 
-[Benchmark](/performance/benchmarks) хуудсаас CLI parameters болон тайлангийн форматын
+[Үзүүлэлт](/performance/benchmarks) хуудсаас CLI parameters болон тайлангийн форматын
 дэлгэрэнгүйг үзнэ үү.
 
 ## Хэрэгтэй тэмдэглэл

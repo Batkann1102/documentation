@@ -1,6 +1,6 @@
 ---
-title: "Container lifecycle"
-description: "@PostConstruct ба @PreDestroy hook, AutoCloseable контейнер ба startup/shutdown дараалал."
+title: "Контейнерийн амьдралын мөчлөг"
+description: "@PostConstruct ба @PreDestroy hook, AutoCloseable контейнер ба ачаалж эхлэх (startup)/shutdown дараалал."
 icon: "circle-nodes"
 ---
 
@@ -95,4 +95,4 @@ ctx.getBean(MyService.class); // → IllegalStateException: Container хаагд
 - **Hook алдаа bubble болохгүй**: `@PreDestroy` hook дотор throw хийсэн `Exception` log болж бусад hook-ууд цаашаа ажиллана. Энэ нь нэг bean-ийн алдаанаас бусад resource-уудын teardown-ыг алдахгүй болгох юм.
 - **Lazy bean**: `lazyInit=true` үед `@PostConstruct` нь анх удаа `getBean(...)` дуудагдсан үед ажиллана.
 
-[Design decisions](/architecture/design-decisions) хуудаснаас яагаад reverse-order teardown сонгосон шалтгаанаа уншина уу.
+[Архитектурын шийдвэрүүд](/architecture/design-decisions) хуудаснаас яагаад reverse-order teardown сонгосон шалтгаанаа уншина уу.

@@ -10,10 +10,10 @@ icon: "bolt"
 `Class#getDeclaredAnnotation` зэрэг дуудлагууд бол JVM-д хямд биш бөгөөд:
 
 - `Class#getDeclaredFields` нь дотроо `Field[]` cloning хийнэ (1 дуудлага = 1 хуулбар)
-- Annotation-уудыг lazy parsing хийдэг боловч анхны access болгонд reflection lookup ажиллана
+- Annotation-уудыг lazy parsing хийдэг боловч анхны access болгонд reflection хайлт (lookup) ажиллана
 - `setAccessible(true)` нь access checker-ийн кэшийг dropdown болгоно
 
-Иймд хэдэн зуун bean-тэй апп startup, олон удаа prototype үүсгэх scenario-нд reflection нь
+Иймд хэдэн зуун bean-тэй апп ачаалж эхлэх (startup), олон удаа prototype үүсгэх scenario-нд reflection нь
 хамгийн их зардлын эх үүсвэр болдог.
 
 ## `ReflectionCache` бүтэц
@@ -40,16 +40,16 @@ for (Field f : md.autowiredFields()) {
 
 ## Хэмжсэн үр дүн
 
-`mn.edu.num.app.scope` (4 bean), 500 lookup iteration:
+`mn.edu.num.app.scope` (4 bean), 500 хайлт (lookup) давталт:
 
 | Хэмжилт | Утга |
 | --- | --- |
-| `singleton-lookup` mean | **1.26 µs** |
+| `singleton-lookup` дундаж | **1.26 µs** |
 | `singleton-lookup` p50 | 0.95 µs |
 | `singleton-lookup` p95 | 1.12 µs |
 
 Cache байхгүй (анхны хувилбар) дээр `getDeclaredFields` дуудлагуудаас шалтгаалан p95 ~3-4 µs
-байсан. Дэлгэрэнгүйг [Benchmarks](/performance/benchmarks) хуудаснаас үзнэ үү.
+байсан. Дэлгэрэнгүйг [Үзүүлэлт](/performance/benchmarks) хуудаснаас үзнэ үү.
 
 ## Memory зардал
 
@@ -62,4 +62,4 @@ Bean бүрд ~3 reference, ~16-32 байтын `Class[]` дамжуулна. 10
 - **`ConcurrentHashMap`**: Эхлээд `synchronized` blocks ашигласан боловч локоны overhead-аас зайлсхийхийн тулд CHM ашиглав.
 - **Lifetime**: Cache нь JVM-ийн амьдралын турш хадгалагдах бөгөөд classloader-ыг unload хийсний дараагаар JVM нь classref-ыг GC болгож гэрчилнэ. Энэ нь dev-time hot-reload орчинд хязгаарлалттай.
 
-[Design decisions](/architecture/design-decisions) хуудсаас сонголт хийсэн шалтгаанаа дэлгэрэнгүй уншина уу.
+[Архитектурын шийдвэрүүд](/architecture/design-decisions) хуудсаас сонголт хийсэн шалтгаанаа дэлгэрэнгүй уншина уу.

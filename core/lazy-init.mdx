@@ -16,7 +16,7 @@ Default тохиолдолд **бүх singleton bean** контейнер ача
 ## Lazy init
 
 `lazyInit=true` үед singleton bean-уудыг **анх удаа `getBean(...)`** дуудагдсан үед л
-үүсгэнэ. Урт удаан startup, эсвэл бүх bean-ийг ашиглахгүй сценаринд тохиромжтой.
+үүсгэнэ. Урт удаан ачаалж эхлэх (startup), эсвэл бүх bean-ийг ашиглахгүй сценаринд тохиромжтой.
 
 <CodeGroup>
 ```java Annotation
@@ -38,25 +38,25 @@ ApplicationContext ctx = ApplicationContextBuilder.builder()
 
 `PROTOTYPE` bean нь түрээсхэн тэр чигээрээ lazy байсан тул `lazyInit` тэдгээрт нөлөөлөхгүй.
 
-## Бенчмарк дээрх ялгаа
+## Үзүүлэлт дээрх ялгаа
 
 `mn.edu.num.app.scope` (4 bean)-ийн жишээн дээрх Devin VM-ийн хэмжилт:
 
-| Сценарь | Mean (µs) | P50 (µs) | P95 (µs) |
+| Сценарь | Дундаж (µs) | P50 (µs) | P95 (µs) |
 | --- | ---: | ---: | ---: |
 | `startup-eager` | 1681.27 | 876.12 | 7484.38 |
 | `startup-lazy` | 1355.09 | 553.14 | 6108.37 |
 
 <Note>
-  Дээрх тоо нь жижиг апп дээрх жишээ. Бодит апп дээр bean тоо болон lifecycle hook-уудаас
+  Дээрх тоо нь жижиг апп дээрх жишээ. Бодит апп дээр bean тоо болон амьдралын мөчлөгийн удирдлага-уудаас
   шалтгаалан зөрүү ихсэх боломжтой. Өөрийн апп дээрээ
   `BenchmarkRunner --package <pkg>` командаар турших боломжтой.
 </Note>
 
 ## Дизайн дүгнэлт
 
-`lazyInit=true` болсон үед циклик dependency илрүүлэх явц хойшилно (анхны бодит lookup
-хүртэл). Production-д ашиглах бол startup-ийн нэг хэсгийг lazy болгож, dev/CI horimd
+`lazyInit=true` болсон үед циклик dependency илрүүлэх явц хойшилно (анхны бодит хайлт (lookup)
+хүртэл). Production-д ашиглах бол ачаалж эхлэх (startup)-ийн нэг хэсгийг lazy болгож, dev/CI horimd
 eager хэвээр үлдээх hybrid стратеги тохиромжтой.
 
 ```java

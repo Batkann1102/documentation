@@ -62,7 +62,7 @@ public class DemoApp {
   Дэлгэрэнгүйг [Lifecycle](/core/lifecycle) хуудаснаас үзнэ үү.
 </Tip>
 
-## 3. Builder API ашиглан startup
+## 3. Builder API ашиглан ачаалж эхлэх (startup)
 
 `@EnableIoC`-н оронд програмаар тохируулах бол:
 
@@ -77,21 +77,21 @@ ApplicationContext ctx = ApplicationContextBuilder.builder()
 [Builder API](/core/builder) дээр lazy init, strict scope, dependency tree HTML-аар нээх
 зэрэг бүх сонголтын тайлбар бий.
 
-## 4. Bean lookup
+## 4. Bean хайлт (lookup)
 
 ```java
 UserService byType  = ctx.getBean(UserService.class);
 UserService byName  = (UserService) ctx.getBean("userService");
 ```
 
-`getBean(name)` дуудлагад нэр буруу байвал `BeanNotFoundException` болж "did you mean"
+`getBean(name)` дуудлагад нэр буруу байвал `BeanNotFoundException` болж "did you дундаж"
 зөвлөмж буцаана. Жишээ нь:
 
 ```text
 Bean олдсонгүй: 'usrSrvce'. Магадгүй та 'userService'-г санасан уу?
 ```
 
-Дэлгэрэнгүйг [Error messages](/dx/error-messages) хуудаснаас үзнэ үү.
+Дэлгэрэнгүйг [Алдааны мэдээлэл](/dx/error-messages) хуудаснаас үзнэ үү.
 
 ## 5. Жишээ output
 
@@ -121,7 +121,7 @@ Hi, user#42
   <Card title="Constructor injection" icon="syringe" href="/core/constructor-injection">
     `@Autowired` constructor дээр
   </Card>
-  <Card title="Бенчмарк" icon="gauge-high" href="/performance/benchmarks">
-    Startup ба lookup-ын бодит хэмжилт
+  <Card title="Үзүүлэлт" icon="gauge-high" href="/performance/benchmarks">
+    Startup ба хайлт (lookup)-ын бодит хэмжилт
   </Card>
 </Columns>

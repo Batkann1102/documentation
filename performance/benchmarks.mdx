@@ -1,19 +1,19 @@
 ---
-title: "Benchmark"
-description: "Startup, lookup, prototype-ийн бодит хэмжилт ба BenchmarkRunner-ийг ашиглах заавар."
+title: "Үзүүлэлт"
+description: "Startup, хайлт (lookup), prototype-ийн бодит хэмжилт ба BenchmarkRunner-ийг ашиглах заавар."
 icon: "gauge-high"
 ---
 
 ## Зорилго
 
-Шүүмжид «фреймворкийн performance, scalability, memory үнэлгээ дутмаг» гэж дурдсан тул
-суурь хэмжилт хийдэг benchmark module-ийг шууд төсөл дотор оруулсан. Тус module нь:
+Шүүмжид «фреймворкийн гүйцэтгэл, өргөтгөх боломж, memory үнэлгээ дутмаг» гэж дурдсан тул
+суурь хэмжилт хийдэг Гүйцэтгэлийн үзүүлэлтийн модуль-ийг шууд төсөл дотор оруулсан. Тус module нь:
 
-- Warmup phase
+- Урьдчилсан халаалт (warmup) phase
 - p50, p95, min, max-ийг бодолцсон тайлан
 - JSON ба Markdown форматтай үр дүн
 
-бүхий стандарт benchmark гүйцэтгэдэг.
+бүхий стандарт Үзүүлэлт гүйцэтгэдэг.
 
 ## CLI ашиглалт
 
@@ -30,26 +30,26 @@ java -cp target/classes:target/test-classes \
 | Параметр | Default | Тайлбар |
 | --- | --- | --- |
 | `--package` | `mn.edu.num.app` | Scan хийх root package |
-| `--warmup` | `200` | JIT уях warmup тоо |
-| `--iterations` | `1000` | Хэмжих iteration |
+| `--warmup` | `200` | JIT уях урьдчилсан халаалт (warmup) тоо |
+| `--iterations` | `1000` | Хэмжих давталт |
 | `--out` | `target/benchmarks` | JSON/MD гарах хавтас |
 
 ## Devin VM-ийн жишээ үр дүн
 
-`mn.edu.num.app.scope` (4 bean), warmup=100, iterations=500 — Devin VM (нэг машин,
+`mn.edu.num.app.scope` (4 bean), урьдчилсан халаалт (warmup)=100, давталт=500 — Devin VM (нэг машин,
 GraalVM-гүй):
 
-| Name | Iterations | Mean (µs) | P50 (µs) | P95 (µs) | Min (µs) | Max (µs) | Notes |
+| Name | Давталт | Дундаж (µs) | P50 (µs) | P95 (µs) | Min (µs) | Max (µs) | Notes |
 |------|-----------:|----------:|---------:|---------:|---------:|---------:|-------|
 | startup-eager | 20 | 1681.27 | 876.12 | 7484.38 | 778.82 | 7484.38 | lazyInit=false |
 | startup-lazy | 20 | 1355.09 | 553.14 | 6108.37 | 455.14 | 6108.37 | lazyInit=true |
-| singleton-lookup | 500 | 1.26 | 0.95 | 1.12 | 0.80 | 44.10 | Cached singleton lookup |
+| singleton-lookup | 500 | 1.26 | 0.95 | 1.12 | 0.80 | 44.10 | Cached singleton хайлт (lookup) |
 
 Энэ файлуудыг repo дотор `docs/benchmarks/results.{md,json}` хэлбэрээр хадгалсан.
 
 <Tip>
-  Бодит апп дээрээ benchmark хийхдээ тэргүүлэх bean-уудтай pretty representative package
-  өгөх хэрэгтэй. 4 bean-тэй жишээ дээр lookup-ийн mean нь зөвхөн direct map lookup-ийг л
+  Бодит апп дээрээ Үзүүлэлт хийхдээ тэргүүлэх bean-уудтай pretty representative package
+  өгөх хэрэгтэй. 4 bean-тэй жишээ дээр хайлт (lookup)-ийн дундаж нь зөвхөн direct map хайлт (lookup)-ийг л
   харуулах юм.
 </Tip>
 
@@ -76,10 +76,10 @@ CI-д хадгалаад түүхэн тренд ажиглах нь thesis-ий
 
 ## Хязгаарлалт ба ирээдүй
 
-- **JIT noise**: Warmup ихэсгэх тусам p95 баталгаатай ойртоно. JMH-ийн хэмжээний нарийвчлал
+- **JIT noise**: Урьдчилсан халаалт (warmup) ихэсгэх тусам p95 баталгаатай ойртоно. JMH-ийн хэмжээний нарийвчлал
   биш ч, аппликейшн-түвшний ажиглалтад тохиромжтой.
-- **GC pause**: Хэмжилт нь JVM хэмжих хугацаанд GC trigger хийсэн бол outliers үүснэ.
+- **GC pause**: Хэмжилт нь JVM хэмжих хугацаанд GC trigger хийсэн бол хэвийн бус утга (outlier) үүснэ.
 - **Memory profiling**: `BenchmarkRunner` нь зөвхөн latency-г хэмждэг. Heap profile авахдаа
   `jcmd <pid> GC.heap_info` эсвэл async-profiler-г санал болгоно.
 
-[Comparison](/performance/comparison) хуудсаас Spring/Guice-тай feature-ийн харьцуулалт үзнэ үү.
+[Comparison](/performance/comparison) хуудсаас Spring/Guice-тай шинж чанар-ийн харьцуулалт үзнэ үү.

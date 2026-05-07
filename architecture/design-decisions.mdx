@@ -1,5 +1,5 @@
 ---
-title: "Design decisions"
+title: "Архитектурын шийдвэрүүд"
 description: "Container архитектурын гол сонголтуудын тайлбар, trade-off-ууд."
 icon: "compass-drafting"
 ---
@@ -47,7 +47,7 @@ A → B → C
 
 A нь B-ээс хамаарна → A-г teardown хийхээс өмнө B бэлэн байх ёстой → B-г өмнө хааж болохгүй.
 Иймд `[A, B, C]` дараалалтай үүссэн bean-уудыг `[C, B, A]` дарааллаар хаана. Энэ нь
-`creationOrder` массиваас reverse iteration хийх замаар хэрэгжсэн.
+`creationOrder` массиваас reverse давталт хийх замаар хэрэгжсэн.
 
 ## Buidler API-ийг яагаад нэмсэн
 
@@ -79,4 +79,4 @@ class-loading order-ыг бүрэн determined болгоно.
 
 Bean нэрийн алдаа нь IoC хэрэглэгчийн хамгийн нийтлэг блок. Levenshtein distance ашиглан
 1-2 алхамын дотор байгаа нэрийг санал болгох нь UX-ыг мэдэгдэхүйц сайжруулна. Дэлгэрэнгүйг
-[Error messages](/dx/error-messages) хуудаснаас үзнэ үү.
+[Алдааны мэдээлэл](/dx/error-messages) хуудаснаас үзнэ үү.

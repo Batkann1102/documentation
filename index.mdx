@@ -1,13 +1,13 @@
 ---
 title: "thesis-java-framework"
-description: "Annotation-driven Java IoC/DI framework — reflection caching, lifecycle hooks, deterministic scanning, бенчмарк бүхий судалгааны фреймворк."
+description: "Annotation-driven Java IoC/DI framework — рефлекшн кэшлэх (ойлтыг нөөцлөх), lifecycle hooks, тогтвортой дараалалтай уншилт, Үзүүлэлт бүхий судалгааны фреймворк."
 icon: "rocket"
 ---
 
 `thesis-java-framework` нь дипломын ажлын хүрээнд боловсруулсан **annotation-driven Java IoC/DI**
-фреймворк юм. Spring/Guice-ийн үндсэн зарчмыг дагасан боловч **reflection caching, eager/lazy
-init, constructor injection, lifecycle hook, deterministic scanning, benchmark module** болон
-**developer experience** дээр голчилсон шинэлэг хувилбар.
+фреймворк юм. Spring/Guice-ийн үндсэн зарчмыг дагасан боловч **рефлекшн кэшлэх (ойлтыг нөөцлөх), eager/lazy
+init, байгуулагчийн хамаарал оруулалт (constructor injection), амьдралын мөчлөгийн удирдлага, тогтвортой дараалалтай уншилт, Гүйцэтгэлийн үзүүлэлтийн модуль** болон
+**хөгжүүлэгчийн тав тух (DX)** дээр голчилсон шинэлэг хувилбар.
 
 ## Гол боломжууд
 
@@ -23,15 +23,15 @@ init, constructor injection, lifecycle hook, deterministic scanning, benchmark m
   <Card title="Reflection caching" icon="bolt" href="/performance/reflection-cache">
     Класс тус бүрд field, constructor, lifecycle method-уудыг нэг удаа тооцож кэшилнэ.
   </Card>
-  <Card title="Real benchmark" icon="gauge-high" href="/performance/benchmarks">
-    `BenchmarkRunner` warmup, p50/p95-тэй startup ба lookup хэмжилт хийж JSON/Markdown
+  <Card title="Real Үзүүлэлт" icon="gauge-high" href="/performance/benchmarks">
+    `BenchmarkRunner` урьдчилсан халаалт (warmup), p50/p95-тэй ачаалж эхлэх (startup) ба хайлт (lookup) хэмжилт хийж JSON/Markdown
     тайлан үүсгэнэ.
   </Card>
   <Card title="Spring vs Guice харьцуулалт" icon="scale-balanced" href="/performance/comparison">
-    Feature болон төсөөтэй performance шинж тэмдэг дээр харьцуулсан хүснэгт.
+    Шинж чанар болон төсөөтэй гүйцэтгэл шинж тэмдэг дээр харьцуулсан хүснэгт.
   </Card>
-  <Card title="Архитектур ба DX" icon="diagram-project" href="/architecture/overview">
-    Container lifecycle, scope management, "did-you-mean" сэрэмжлүүлэг, dependency tree
+  <Card title="Архитектур ба Хөгжүүлэгчийн тав тух (DX)" icon="diagram-project" href="/architecture/overview">
+    Контейнерийн амьдралын мөчлөг, scope management, "did-you-mean" сэрэмжлүүлэг, dependency tree
     HTML визуалчлал.
   </Card>
 </Columns>
@@ -43,11 +43,11 @@ init, constructor injection, lifecycle hook, deterministic scanning, benchmark m
 | Шүүмжийн санаа | Энэ хувилбар дээрх шийдэл |
 | --- | --- |
 | Шинэлэг тал сул, Spring/Guice-ийг давтсан | Reflection cache, deterministic scan, "did-you-mean", builder-фасад, scope-strict режим |
-| Performance, scalability, memory үнэлгээ байхгүй | `mn.edu.num.benchmark` модуль, JSON/Markdown тайлантай startup ба lookup [бенчмарк](/performance/benchmarks) |
+| Гүйцэтгэл, өргөтгөх боломж, memory үнэлгээ байхгүй | `mn.edu.num.benchmark` модуль, JSON/Markdown тайлантай ачаалж эхлэх (startup) ба хайлт (lookup) [Үзүүлэлт](/performance/benchmarks) |
 | Reflection-ийн зардал ба runtime алдааны дүгнэлт сул | [Reflection cache](/performance/reflection-cache) хуудас, дутуу bean үед "did-you-mean" зөвлөмж |
-| Lifecycle, scope management-ийн дизайн дүгнэлт сул | [Lifecycle](/core/lifecycle), [Scope](/core/scopes), [Design decisions](/architecture/design-decisions) хуудас |
-| DX (Developer Experience) үнэлгээ бага | [Error messages](/dx/error-messages), [Visualization](/dx/visualization), [Troubleshooting](/dx/troubleshooting) |
-| Spring/Guice-тэй харьцуулалт feature/benchmark байхгүй | [Feature comparison](/performance/comparison) хуудас |
+| Lifecycle, scope management-ийн дизайн дүгнэлт сул | [Lifecycle](/core/lifecycle), [Scope](/core/scopes), [Архитектурын шийдвэрүүд](/architecture/design-decisions) хуудас |
+| Хөгжүүлэгчийн тав тух (DX) (DX) үнэлгээ бага | [Алдааны мэдээлэл](/dx/error-messages), [Дүрслэл](/dx/visualization), [Алдаа засах](/dx/troubleshooting) |
+| Spring/Guice-тэй харьцуулалт шинж чанар/benchmarks байхгүй | [Feature comparison](/performance/comparison) хуудас |
 
 ## Дараа юу хийх вэ
 
@@ -56,6 +56,6 @@ init, constructor injection, lifecycle hook, deterministic scanning, benchmark m
     Maven `pom.xml` дээр шууд орлуулах, Java 17 шаардлага.
   </Card>
   <Card title="Хурдан эхлэх" icon="bolt-lightning" href="/quickstart">
-    5 минутад эхний bean-ээ бүртгэж, `@EnableIoC` ашиглан startup хий.
+    5 минутад эхний bean-ээ бүртгэж, `@EnableIoC` ашиглан ачаалж эхлэх (startup) хий.
   </Card>
 </Columns>

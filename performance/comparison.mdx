@@ -1,6 +1,6 @@
 ---
 title: "Spring vs Guice vs thesis-java-framework"
-description: "Feature ба performance шинж тэмдгийн харьцуулалт."
+description: "Шинж чанар ба гүйцэтгэл шинж тэмдгийн харьцуулалт."
 icon: "scale-balanced"
 ---
 
@@ -35,29 +35,29 @@ Spring/Guice бол enterprise-grade фреймворк. `thesis-java-framework`
 
 1. Annotation-аар bean бүртгэх суурь зарчмыг **гар хийцийн хэлбэрээр** ойлгомжтой код болгох
 2. Reflection ашигласан implementation-ы зардлыг **бодитоор** хэмжих, оновчлуулах
-3. DX-ийг сайжруулах ("did-you-mean", visualize, builder)
-4. Container lifecycle ба scope management-ийн дизайныг ил харуулах
+3. Хөгжүүлэгчийн тав тух (DX)-ийг сайжруулах ("did-you-mean", visualize, builder)
+4. Контейнерийн амьдралын мөчлөг ба scope management-ийн дизайныг ил харуулах
 
 гэдэг 4 чиглэлд анхаарал хандуулж бөгөөд "энэ нь Spring-ийг орлох зорилготой" биш.
 
-## Performance шинж тэмдэг
+## Гүйцэтгэл шинж тэмдэг
 
 > Дараах тоонууд нь нийтлэг observation-уудаас тоймлосон загвар бөгөөд тус тусын JMH тестээр
-> баталгаажуулагдсан биш. Эх кодыг нэмэлт benchmark-д ашиглах боломжтой.
+> баталгаажуулагдсан биш. Эх кодыг нэмэлт Үзүүлэлт-д ашиглах боломжтой.
 
 | Хэмжилт | Spring (стандарт) | Guice | thesis-java-framework |
 | --- | --- | --- | --- |
-| Cold startup (1k bean) | ~3-5 с | ~0.5-1 с | ~0.05-0.1 с |
-| Singleton lookup | ~50-100 нс | ~50-100 нс | ~700-1500 нс¹ |
+| Cold ачаалж эхлэх (startup) (1k bean) | ~3-5 с | ~0.5-1 с | ~0.05-0.1 с |
+| Singleton хайлт (lookup) | ~50-100 нс | ~50-100 нс | ~700-1500 нс¹ |
 | Prototype create | reflection + post-process | FastClass | reflection + cache |
 
 ¹ `singleton-lookup` нь хамгийн жижиг bean дээр ~1 µs (1000 нс) орчим — энэ нь
-`ConcurrentHashMap`-ийн lookup + JIT inlining-ээс хамаарна.
+`ConcurrentHashMap`-ийн хайлт (lookup) + JIT inlining-ээс хамаарна.
 
 ## Цаашдын ажил
 
 - Бенчмаркийн test set-д Spring/Guice-ийн ижил bean бүтэц нэмж бодит side-by-side харьцуулалт хийх
-- AOP, conditional configuration зэрэг дутуу feature-уудыг judiciously нэмэх
+- AOP, conditional configuration зэрэг дутуу шинж чанар-уудыг judiciously нэмэх
 - `BenchmarkRunner`-ийн үр дүнг CI-д хадгалж тренд гаргах
 
 [Architecture overview](/architecture/overview) хуудаснаас контейнерын тоймыг үзнэ үү.

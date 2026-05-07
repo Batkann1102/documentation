@@ -10,14 +10,14 @@ icon: "diagram-project"
 mn.edu.num
 ├── annotation/         // @Component, @Service, @Autowired, @Qualifier, @Scope, @PostConstruct, ...
 ├── container/
-│   ├── ApplicationContext         // facade — startup/shutdown
+│   ├── ApplicationContext         // facade — ачаалж эхлэх (startup)/shutdown
 │   ├── ApplicationContextBuilder  // fluent API
 │   ├── BeanScanner                // classpath scan
 │   ├── BeanRegistry               // bean definition + cache
-│   ├── DependencyInjector         // field/constructor injection
+│   ├── DependencyInjector         // field/байгуулагчийн хамаарал оруулалт (constructor injection)
 │   ├── ReflectionCache            // class metadata cache
 │   └── visualize/DependencyTreeHtmlExporter
-├── benchmark/          // BenchmarkRunner, Result, Report
+├── Үзүүлэлт/          // BenchmarkRunner, Result, Report
 ├── exception/          // BeanCreationException, BeanScopeException, BeanNotFoundException
 └── util/Levenshtein    // "did-you-mean" suggestion
 ```
@@ -46,10 +46,10 @@ sequenceDiagram
     Ctx-->>User: ready
 
     User->>Ctx: getBean(MyService.class)
-    Ctx->>Reg: lookup(type)
+    Ctx->>Reg: хайлт (lookup)(type)
     alt singleton present
         Reg-->>Ctx: cached instance
-    else lazy or prototype
+    else хүлээлттэй (lazy) эсвэл прототип
         Reg->>Inj: build new instance
         Inj-->>Reg: instance with deps
     end
@@ -64,10 +64,10 @@ sequenceDiagram
 
 | Класс | Гол хариуцлага |
 | --- | --- |
-| `ApplicationContext` | Facade — startup/shutdown оркестрчиглэл, `getBean(...)`, `close()`. |
+| `ApplicationContext` | Facade — ачаалж эхлэх (startup)/shutdown оркестрчиглэл, `getBean(...)`, `close()`. |
 | `ApplicationContextBuilder` | Тохиргоог цуглуулж `ApplicationContext` constructor-руу дамжуулна. |
 | `BeanScanner` | Classpath доорх класс файлуудыг **сорттой** дарааллаар уншиж stereotype annotation-той классуудыг буцаана. |
-| `BeanRegistry` | `Map<String, BeanDefinition>`, `Map<String, Object>` (singleton cache), prototype factory. |
+| `BeanRegistry` | `Map<String, BeanDefinition>`, `Map<String, Object>` (синглтон нөөц (cache)), prototype factory. |
 | `DependencyInjector` | `@Autowired` field/constructor бүрэн ажиллагаатай болгоно. `ReflectionCache`-аас metadata авна. |
 | `ReflectionCache` | Класс тус бүрд field/constructor/method жагсаалтыг кэшилнэ. |
 | `DependencyTreeHtmlExporter` | Bean graph-г HTML файл болгож хадгална, browser-аар нээнэ. |
@@ -81,7 +81,7 @@ sequenceDiagram
 | `definitions: Map<String, BeanDefinition>` | bean ID → definition |
 | `singletons: ConcurrentHashMap<String, Object>` | singleton кэш |
 | `creating: Set<String>` | циклик dependency илрүүлэх stack |
-| `creationOrder: List<String>` | `@PreDestroy` reverse iteration-нд ашиглана |
+| `creationOrder: List<String>` | `@PreDestroy` reverse давталт-нд ашиглана |
 
 Bean олох:
 
@@ -105,5 +105,5 @@ Bean олох:
 - **Public API**: `ApplicationContext`, `ApplicationContextBuilder`, annotation-ууд, exception-ууд.
 - **Internal**: `BeanScanner`, `BeanRegistry`, `DependencyInjector`, `ReflectionCache`. Энэ class-уудыг шууд хэрэглэгч ашиглах ёсгүй (`@ApiNote`-аар тэмдэглэж болно).
 
-[Design decisions](/architecture/design-decisions) хуудаснаас тус бүрийн сонголтын
+[Архитектурын шийдвэрүүд](/architecture/design-decisions) хуудаснаас тус бүрийн сонголтын
 шалтгаанаа уншина уу.
