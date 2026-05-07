@@ -61,7 +61,7 @@
           "icon": "github"
         },
         {
-          "anchor": "Бенчмарк",
+          "anchor": "Үзүүлэлт",
           "href": "/performance/benchmarks",
           "icon": "gauge-high"
         }
@@ -81,7 +81,7 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Хурдан эхлэх",
+      "label": "Шууд эхлэх",
       "href": "/quickstart"
     }
   },
