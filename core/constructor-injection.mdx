@@ -1,0 +1,90 @@
+---
+title: "Constructor injection"
+description: "@Autowired-ийг constructor дээр ашиглаж immutable bean болон final field тодорхойлох."
+icon: "syringe"
+---
+
+## Яагаад constructor injection?
+
+| Field injection | Constructor injection |
+| --- | --- |
+| `private` field-уудыг reflection-аар утга оруулна | `final` field, immutable өгөгдөл |
+| Циклик dependency boldogt амархан тогтоно | Циклик илэрвэл шууд `BeanCreationException` |
+| Test үед mock-ийг reflection-аар оруулна | `new MyService(new MockRepo())` шиг шууд |
+| Контейнераас гадуур үүсгэхэд орхигдсон field үлдэх | Класс хэрэглэхэд бүх dependency аль хэдийнэ задаргаатай |
+
+`thesis-java-framework` нь хоёуланг дэмжих ба нэг bean дээр аль алийг нь ашиглаж болно.
+
+## Жишээ
+
+```java
+@Service
+public class OrderService {
+    private final OrderRepository repo;
+    private final PaymentGateway gateway;
+
+    @Autowired
+    public OrderService(OrderRepository repo, PaymentGateway gateway) {
+        this.repo = repo;
+        this.gateway = gateway;
+    }
+}
+```
+
+Контейнер аль ч parameter тус бүрт `getBean(parameterType)` дуудлагаар bean-ийг
+шийдвэрлэнэ. Хэрэв `@Qualifier` хэрэгтэй бол:
+
+```java
+@Autowired
+public OrderService(@Qualifier("stripe") PaymentGateway gateway) { ... }
+```
+
+## Хэд хэдэн constructor
+
+Зөвхөн **нэг** constructor-д `@Autowired`-г тэмдэглэх ёстой:
+
+```java
+@Service
+public class ReportService {
+    private final Repo repo;
+
+    public ReportService() {                    // утга нь null үлдэнэ — IoC ашиглахгүй
+        this(new InMemoryRepo());
+    }
+
+    @Autowired
+    public ReportService(Repo repo) {
+        this.repo = repo;
+    }
+}
+```
+
+`@Autowired` хоёр constructor дээр зэрэг тавьвал scanner `BeanCreationException` болно.
+
+## Reflection cache
+
+Bean ангилахад нэг л удаа `ReflectionCache` дотор:
+
+- `@Autowired` constructor
+- параметрийн `Class<?>[]`
+- field-ийн жагсаалт
+- lifecycle method-ийн references
+
+тэдгээрийг нэг удаа холбоод цаашаа байнга боломжтой. Дэлгэрэнгүйг
+[Reflection cache](/performance/reflection-cache) хуудсаас үзнэ үү.
+
+## Циклик хамаарал
+
+Constructor injection-аар циклик dependency бол шууд илэрнэ:
+
+```text
+[Context] Singleton bean үүсгэхэд алдаа [alpha]:
+  Тойрог хамаарал илэрлээ: alpha | Үүсгэгдэж байгаа: [alpha, beta, gamma]
+```
+
+Хэрэв шаардлагатай бол:
+
+1. Field injection-аар оруулж late initialization дамжуулах
+2. Дизайн дахин хийх (event-bus, factory)
+
+илүү тогтвортой шийдэл болно.

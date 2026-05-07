@@ -1,0 +1,84 @@
+---
+title: "Dependency tree visualization"
+description: "Container ачаалмагц HTML файл болгож browser-аас үзэх боломж."
+icon: "sitemap"
+---
+
+## Зорилго
+
+Том төслүүдэд bean-ууд хоорондын хамаарлыг нүдээр харах нь:
+
+- Циклик dependency-г илрүүлэх
+- Хэт олон зурвас тоно үүсгэсэн service-ийг refactor хийх
+- Bootcamp/онол-практикийн уулзалтад container бүтцийг харуулах
+
+зэрэг ач холбогдолтой.
+
+`visualize=true` тохиргоо нь контейнерыг build хийсний дараа [HTML файл](https://github.com/Batkann1102/thesis-java-framework/blob/main/src/main/java/mn/edu/num/container/visualize/DependencyTreeHtmlExporter.java)
+үүсгэж default browser-аар нээдэг.
+
+## Идэвхжүүлэх
+
+<CodeGroup>
+```java Annotation
+@EnableIoC(basePackage = "com.example.app", visualize = true)
+public class App {}
+```
+
+```java Builder
+ApplicationContext ctx = ApplicationContextBuilder.builder()
+        .basePackage("com.example.app")
+        .visualize(true)
+        .build();
+```
+</CodeGroup>
+
+```text
+[Visualize] Dependency tree HTML: /tmp/thesis-deps-1714833219183.html
+[Visualize] Browser нээгдэхийг хүлээж байна...
+```
+
+## Бүтэц
+
+Үүсгэсэн HTML файл нь дараах хэсгээс бүрдэнэ:
+
+| Хэсэг | Тайлбар |
+| --- | --- |
+| Header | Bean тоо, generation timestamp |
+| Tree section | Bean бүрд `<details>` HTML element-аар collapsible хэлбэрээр харуулна |
+| CSS | scope-аар өнгө ялгах (singleton — цэнхэр, prototype — улаан) |
+
+```html
+<details open>
+  <summary>orderService <span class="scope singleton">SINGLETON</span></summary>
+  <ul>
+    <li>orderRepository</li>
+    <li>paymentGateway</li>
+  </ul>
+</details>
+```
+
+## Хязгаарлалт
+
+- Бүх инжект `@Autowired` field/constructor-ийг нэгтгэж харуулна. Setter injection дэмжихгүй.
+- Olo bean ижил interface implement хийсэн үед `@Qualifier`-ийн харгалзах bean-ыг ялган харуулна.
+- HTML файл `/tmp` хавтсанд хадгалагдах ба хуучнуудыг clean up хийдэггүй (cron эсвэл reboot-р цэвэрлэгдэнэ).
+
+## Бусад instrument-уудтай интеграцлах
+
+`/tmp` дотор үлддэг HTML-ийг CI artifact болгож хадгалах нь Pull Request review дээр `dependency
+tree` хавсралт байх боломж олгоно. Жишээ нь GitHub Actions:
+
+```yaml
+- name: Generate dep tree
+  run: java -cp target/classes mn.edu.num.benchmark.BenchmarkRunner --package com.example
+- uses: actions/upload-artifact@v4
+  with:
+    name: dependency-tree
+    path: /tmp/thesis-deps-*.html
+```
+
+## Цаашдын ажил
+
+- Dependency cycle дээр визуал warning highlight нэмэх
+- Mermaid syntax export хийж Mintlify дотор шууд орлуулах

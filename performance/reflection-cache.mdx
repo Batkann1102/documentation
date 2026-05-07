@@ -1,0 +1,65 @@
+---
+title: "Reflection caching"
+description: "Reflection-ийн зардлыг бууруулах ReflectionCache-ийн дотоод бүтэц ба үр дүн."
+icon: "bolt"
+---
+
+## Reflection-ийн зардал
+
+`java.lang.reflect.Field#getDeclaredFields`, `Constructor#getParameterTypes`,
+`Class#getDeclaredAnnotation` зэрэг дуудлагууд бол JVM-д хямд биш бөгөөд:
+
+- `Class#getDeclaredFields` нь дотроо `Field[]` cloning хийнэ (1 дуудлага = 1 хуулбар)
+- Annotation-уудыг lazy parsing хийдэг боловч анхны access болгонд reflection lookup ажиллана
+- `setAccessible(true)` нь access checker-ийн кэшийг dropdown болгоно
+
+Иймд хэдэн зуун bean-тэй апп startup, олон удаа prototype үүсгэх scenario-нд reflection нь
+хамгийн их зардлын эх үүсвэр болдог.
+
+## `ReflectionCache` бүтэц
+
+`mn.edu.num.container.ReflectionCache` нь класс тус бүрд доорх метаөгөгдлийг **нэг л удаа**
+тооцон, цаашид хадгална:
+
+| Талбар | Тайлбар |
+| --- | --- |
+| `autowiredFields` | `@Autowired` талбаруудын `Field` массив |
+| `autowiredConstructor` | `@Autowired`-тэй constructor (хэрэв байгаа бол) |
+| `autowiredParamTypes` | constructor-ын параметрийн `Class<?>[]` |
+| `postConstructMethods` | `@PostConstruct` метод эрэмблэгдсэн дарааллаар |
+| `preDestroyMethods` | `@PreDestroy` метод |
+
+Эдгээр нь `ConcurrentHashMap<Class<?>, ReflectionCache.ClassMetadata>` дотор хадгалагдана.
+
+```java
+ClassMetadata md = ReflectionCache.metaOf(MyService.class);
+for (Field f : md.autowiredFields()) {
+    f.set(instance, ctx.getBean(f.getType()));
+}
+```
+
+## Хэмжсэн үр дүн
+
+`mn.edu.num.app.scope` (4 bean), 500 lookup iteration:
+
+| Хэмжилт | Утга |
+| --- | --- |
+| `singleton-lookup` mean | **1.26 µs** |
+| `singleton-lookup` p50 | 0.95 µs |
+| `singleton-lookup` p95 | 1.12 µs |
+
+Cache байхгүй (анхны хувилбар) дээр `getDeclaredFields` дуудлагуудаас шалтгаалан p95 ~3-4 µs
+байсан. Дэлгэрэнгүйг [Benchmarks](/performance/benchmarks) хуудаснаас үзнэ үү.
+
+## Memory зардал
+
+Bean бүрд ~3 reference, ~16-32 байтын `Class[]` дамжуулна. 1000 bean-тэй апп дээр ~40 КБ
+гэж тооцоолж болно.
+
+## Дизайн дүгнэлт
+
+- **Class scope**: Метаөгөгдөл нь класст хамаарна тул prototype scope-той ч давхардахгүй.
+- **`ConcurrentHashMap`**: Эхлээд `synchronized` blocks ашигласан боловч локоны overhead-аас зайлсхийхийн тулд CHM ашиглав.
+- **Lifetime**: Cache нь JVM-ийн амьдралын турш хадгалагдах бөгөөд classloader-ыг unload хийсний дараагаар JVM нь classref-ыг GC болгож гэрчилнэ. Энэ нь dev-time hot-reload орчинд хязгаарлалттай.
+
+[Design decisions](/architecture/design-decisions) хуудсаас сонголт хийсэн шалтгаанаа дэлгэрэнгүй уншина уу.

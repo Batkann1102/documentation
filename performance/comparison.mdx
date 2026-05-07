@@ -1,0 +1,63 @@
+---
+title: "Spring vs Guice vs thesis-java-framework"
+description: "Feature ба performance шинж тэмдгийн харьцуулалт."
+icon: "scale-balanced"
+---
+
+## Гол ялгаа
+
+| Чиг үүрэг | Spring Framework | Google Guice | thesis-java-framework |
+| --- | --- | --- | --- |
+| Bean бүртгэх | XML, JavaConfig, classpath scan | `Module#configure(Binder)` | Annotation classpath scan |
+| Field injection | ✓ | ✓ | ✓ |
+| Constructor injection | ✓ (зөвлөмжтэй) | ✓ (default) | ✓ |
+| Setter injection | ✓ | хязгаарлагдмал | ✗ (зориудаар оруулаагүй) |
+| `@Qualifier` | ✓ | `@Named`/binding annotation | ✓ |
+| Scope | singleton, prototype, request, session, ... | singleton, no-scope, custom | singleton, prototype |
+| Lifecycle hook | `@PostConstruct`, `@PreDestroy`, `InitializingBean` | `@Inject` method, listeners | `@PostConstruct`, `@PreDestroy` |
+| Lazy init | `@Lazy`, `lazy-init` | provider pattern | `@EnableIoC(lazyInit=true)` |
+| AOP | full Spring AOP, AspectJ | method interceptor | ✗ (диплом-ийн scope-д ороогүй) |
+| Reflection cache | ✓ | ✓ (FastClass) | ✓ (`ReflectionCache`) |
+| Bootstrapping API | XML, JavaConfig, `@SpringBootApplication` | `Guice.createInjector(...)` | `@EnableIoC` + `ApplicationContextBuilder` |
+| Жин (jar) | ~1MB+ core, framework total ~10-30MB | ~600 KB | ~30 KB |
+| Стартап overhead (жижиг апп) | онд ~1-3 секунд | 100-300 мс | < 10 мс |
+| Testing-д хэрэг боломж | embedded, `@SpringBootTest` | `Modules.override` | direct `new ApplicationContext(...)`/Builder |
+
+<Tip>
+  Энэ хүснэгт нь стандарт жижиг апп дээр ажиглаж болох ерөнхий шинж тэмдгийг харуулна.
+  JMH түвшний нарийн харьцуулалт хийх бол дараагийн судалгаанд тусгайлан зориулах
+  боломжтой.
+</Tip>
+
+## Чиглэсэн ажил
+
+Spring/Guice бол enterprise-grade фреймворк. `thesis-java-framework` нь академийн хүрээнд:
+
+1. Annotation-аар bean бүртгэх суурь зарчмыг **гар хийцийн хэлбэрээр** ойлгомжтой код болгох
+2. Reflection ашигласан implementation-ы зардлыг **бодитоор** хэмжих, оновчлуулах
+3. DX-ийг сайжруулах ("did-you-mean", visualize, builder)
+4. Container lifecycle ба scope management-ийн дизайныг ил харуулах
+
+гэдэг 4 чиглэлд анхаарал хандуулж бөгөөд "энэ нь Spring-ийг орлох зорилготой" биш.
+
+## Performance шинж тэмдэг
+
+> Дараах тоонууд нь нийтлэг observation-уудаас тоймлосон загвар бөгөөд тус тусын JMH тестээр
+> баталгаажуулагдсан биш. Эх кодыг нэмэлт benchmark-д ашиглах боломжтой.
+
+| Хэмжилт | Spring (стандарт) | Guice | thesis-java-framework |
+| --- | --- | --- | --- |
+| Cold startup (1k bean) | ~3-5 с | ~0.5-1 с | ~0.05-0.1 с |
+| Singleton lookup | ~50-100 нс | ~50-100 нс | ~700-1500 нс¹ |
+| Prototype create | reflection + post-process | FastClass | reflection + cache |
+
+¹ `singleton-lookup` нь хамгийн жижиг bean дээр ~1 µs (1000 нс) орчим — энэ нь
+`ConcurrentHashMap`-ийн lookup + JIT inlining-ээс хамаарна.
+
+## Цаашдын ажил
+
+- Бенчмаркийн test set-д Spring/Guice-ийн ижил bean бүтэц нэмж бодит side-by-side харьцуулалт хийх
+- AOP, conditional configuration зэрэг дутуу feature-уудыг judiciously нэмэх
+- `BenchmarkRunner`-ийн үр дүнг CI-д хадгалж тренд гаргах
+
+[Architecture overview](/architecture/overview) хуудаснаас контейнерын тоймыг үзнэ үү.

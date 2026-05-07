@@ -1,72 +1,53 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "thesis-java-framework",
   "colors": {
     "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "light": "#34D399",
+    "dark": "#065F46"
   },
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Гарын авлага",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Эхлэх",
             "pages": [
               "index",
-              "quickstart",
-              "development"
+              "install",
+              "quickstart"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Үндсэн ойлголтууд",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "core/annotations",
+              "core/scopes",
+              "core/lifecycle",
+              "core/constructor-injection",
+              "core/lazy-init",
+              "core/builder"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Гүйцэтгэл ба дизайн",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/components",
-              "essentials/reusable-snippets"
+              "performance/reflection-cache",
+              "performance/benchmarks",
+              "performance/comparison",
+              "architecture/overview",
+              "architecture/design-decisions"
             ]
           },
           {
-            "group": "Agent ready",
+            "group": "Хөгжүүлэгчийн туршлага",
             "pages": [
-              "agent-ready/prompt",
-              "agent-ready/visibility",
-              "agent-ready/contextual",
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "dx/error-messages",
+              "dx/visualization",
+              "dx/troubleshooting"
             ]
           }
         ]
@@ -75,14 +56,14 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "GitHub repo",
+          "href": "https://github.com/Batkann1102/thesis-java-framework",
+          "icon": "github"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Бенчмарк",
+          "href": "/performance/benchmarks",
+          "icon": "gauge-high"
         }
       ]
     }
@@ -94,33 +75,27 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "GitHub",
+        "href": "https://github.com/Batkann1102/thesis-java-framework"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "Хурдан эхлэх",
+      "href": "/quickstart"
     }
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude"
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/Batkann1102/thesis-java-framework"
     }
   }
 }

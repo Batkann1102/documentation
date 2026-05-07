@@ -1,0 +1,98 @@
+---
+title: "Container lifecycle"
+description: "@PostConstruct ба @PreDestroy hook, AutoCloseable контейнер ба startup/shutdown дараалал."
+icon: "circle-nodes"
+---
+
+## Контейнерын фазууд
+
+```mermaid
+flowchart LR
+    A[Class scan] --> B[Bean бүртгэл]
+    B --> C{lazyInit?}
+    C -- үгүй --> D[Eager singleton create]
+    C -- тийм --> D2[Skip → first getBean]
+    D --> E[Field/Constructor injection]
+    D2 --> E
+    E --> F[@PostConstruct]
+    F --> G[Container Ready]
+    G --> H[ctx.close()]
+    H --> I[@PreDestroy reverse order]
+    I --> J[Closed]
+```
+
+## `@PostConstruct`
+
+Bean үүсэж, dependency инжект дууссаны дараа дуугарна. Ашиглах гол хэрэглээ:
+
+- Кэш гэсэн дотоод төлөв бэлдэх
+- Гадаад resource нээх (HTTP клиент, DB connection pool)
+- Стартап үед нэг удаа гүйцэтгэх ажил
+
+```java
+@Service
+public class CacheService {
+    @Autowired
+    private DataLoader loader;
+
+    @PostConstruct
+    void warmUp() {
+        loader.preload();
+    }
+}
+```
+
+<Warning>
+  `@PostConstruct` метод нь параметргүй, void буцаах ёстой. Зөрчилтэй сигнатур үед
+  `BeanCreationException` болно.
+</Warning>
+
+## `@PreDestroy`
+
+`ApplicationContext.close()` дуудагдахад **бүртгэгдсэн дарааллын урвуу хэлбэрээр** дуугарна.
+Энэ нь dependent-аас pre-dependency руу очих байгалийн teardown order юм.
+
+```java
+@Service
+public class WorkerPool {
+    @PreDestroy
+    void shutdown() {
+        executor.shutdown();
+    }
+}
+```
+
+<Tip>
+  Контейнерыг `try-with-resources` дотор оруулбал `close()` автоматаар дуудагдана:
+
+  ```java
+  try (ApplicationContext ctx = new ApplicationContext(App.class)) {
+      // ажил...
+  } // ← @PreDestroy энд дуугарна
+  ```
+</Tip>
+
+## `AutoCloseable` гэрээ
+
+`ApplicationContext` нь `java.lang.AutoCloseable`-г implement хийдэг.
+
+| Method | Тайлбар |
+| --- | --- |
+| `close()` | `@PreDestroy` дуудаад contoiner-ыг `closed=true` болгоно. Удаах getBean дуудлагаас `IllegalStateException`. |
+| `isClosed()` | Контейнер хаагдсан эсэх. |
+| `isLazyInit()` | Идэвхтэй init режимийг буцаана. |
+| `beanCount()` | Бүртгэгдсэн bean тоо. |
+
+```java
+ApplicationContext ctx = new ApplicationContext(App.class);
+ctx.close();
+ctx.getBean(MyService.class); // → IllegalStateException: Container хаагдсан
+```
+
+## Нийтлэг үндсэн дүгнэлт
+
+- **Идэмпотент close**: `close()`-ийг хэд хэд дуудах нь аюулгүй; зөвхөн эхний дуудлага hook-уудыг ажиллуулна.
+- **Hook алдаа bubble болохгүй**: `@PreDestroy` hook дотор throw хийсэн `Exception` log болж бусад hook-ууд цаашаа ажиллана. Энэ нь нэг bean-ийн алдаанаас бусад resource-уудын teardown-ыг алдахгүй болгох юм.
+- **Lazy bean**: `lazyInit=true` үед `@PostConstruct` нь анх удаа `getBean(...)` дуудагдсан үед ажиллана.
+
+[Design decisions](/architecture/design-decisions) хуудаснаас яагаад reverse-order teardown сонгосон шалтгаанаа уншина уу.

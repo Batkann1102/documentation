@@ -1,0 +1,135 @@
+---
+title: "Annotation-ууд"
+description: "Bean бүртгэх, dependency инжект хийх, lifecycle hook тодорхойлоход ашиглагдах annotation-уудын лавлагаа."
+icon: "at"
+---
+
+## Stereotype annotation-ууд
+
+Доорх 4 annotation бүгд `@Component`-ийн нэгэн адил ажиллах ба класс scanner-аар автоматаар
+бүртгэгдэнэ. Семантик ялгарал нь зөвхөн уншигдах байдалд зориулагдсан.
+
+| Annotation | Зориулалт |
+| --- | --- |
+| `@Component` | Ерөнхий bean. Бусад stereotype-уудын суурь. |
+| `@Service` | Бизнес логиктой service-уудыг тэмдэглэхэд. |
+| `@Repository` | Өгөгдөл хадгалалттай харьцах класс (DAO). |
+| `@Controller` | HTTP/CLI controller. |
+
+```java
+@Service
+public class OrderService {
+    @Autowired
+    private OrderRepository repo;
+}
+
+@Repository
+public class OrderRepository { /* ... */ }
+```
+
+<Note>
+  `@Component("custom-name")` гэж нэрлэвэл bean-ийн ID-г шууд тодорхойлж болно. Үгүй
+  бол класс нэрийн camelCase хувилбар (жишээ нь `OrderService` → `orderService`)
+  автоматаар сонгогдоно.
+</Note>
+
+## Dependency injection annotation-ууд
+
+### `@Autowired`
+
+`@Autowired` нь field эсвэл constructor дээр тавигдах боломжтой.
+
+<CodeGroup>
+```java Field injection
+@Service
+public class A {
+    @Autowired
+    private B b;
+}
+```
+
+```java Constructor injection
+@Service
+public class A {
+    private final B b;
+
+    @Autowired
+    public A(B b) {
+        this.b = b;
+    }
+}
+```
+</CodeGroup>
+
+Constructor injection-ы дэлгэрэнгүй [энд](/core/constructor-injection).
+
+### `@Qualifier`
+
+Нэг interface-д хэд хэдэн bean байгаа үед сонголт хийх:
+
+```java
+public interface PaymentGateway {}
+
+@Service("stripe") public class StripeGateway implements PaymentGateway {}
+@Service("paypal") public class PaypalGateway implements PaymentGateway {}
+
+@Service
+public class CheckoutService {
+    @Autowired
+    @Qualifier("stripe")
+    private PaymentGateway gateway;
+}
+```
+
+## Scope annotation
+
+```java
+@Service
+@Scope("prototype")
+public class TaskRunner {}
+```
+
+`@Scope("singleton")` (default) болон `@Scope("prototype")`-ийг дэмжинэ. Бусад утга өгвөл
+contextly `[Context] WARNING` мэдэгдэж SINGLETON руу оруулна. `strictScope=true` үед
+[`BeanScopeException`](/core/scopes) шидэгдэнэ.
+
+## Lifecycle annotation
+
+```java
+@Service
+public class CacheService {
+    @PostConstruct
+    void init() { /* injection дууссаны дараа */ }
+
+    @PreDestroy
+    void close() { /* контейнер хаагдахад */ }
+}
+```
+
+[Lifecycle](/core/lifecycle) хуудсаас дарааллын талаарх дэлгэрэнгүйг үзнэ үү.
+
+## Container bootstrap annotation
+
+```java
+@EnableIoC(
+    basePackage = "mn.edu.num.app.demo",
+    excludePackages = { "mn.edu.num.app.demo.legacy" },
+    lazyInit = false,
+    strictScope = false,
+    visualize = false
+)
+public class DemoApp {}
+```
+
+| Талбар | Тайлбар | Default |
+| --- | --- | --- |
+| `basePackage` | Scan хийх root package | (хоосон → caller-аас тооцоолно) |
+| `excludePackages` | Хасах sub-package-ууд | `{}` |
+| `lazyInit` | Singleton-уудыг шаардлагатай үед үүсгэх | `false` |
+| `strictScope` | Үл мэдэгдэх `@Scope` утга = алдаа | `false` |
+| `visualize` | Container ачаалмагц HTML dependency tree нээх | `false` |
+
+<Tip>
+  `basePackage` хоосон бол context класс байгаа package-ыг автоматаар авна. Энэ нь main
+  application класс дээр `@EnableIoC`-г тэмдэглэхэд тохиромжтой.
+</Tip>

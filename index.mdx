@@ -1,133 +1,61 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
-icon: 'star'
+title: "thesis-java-framework"
+description: "Annotation-driven Java IoC/DI framework — reflection caching, lifecycle hooks, deterministic scanning, бенчмарк бүхий судалгааны фреймворк."
+icon: "rocket"
 ---
 
-## Setting up
+`thesis-java-framework` нь дипломын ажлын хүрээнд боловсруулсан **annotation-driven Java IoC/DI**
+фреймворк юм. Spring/Guice-ийн үндсэн зарчмыг дагасан боловч **reflection caching, eager/lazy
+init, constructor injection, lifecycle hook, deterministic scanning, benchmark module** болон
+**developer experience** дээр голчилсон шинэлэг хувилбар.
 
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
+## Гол боломжууд
 
 <Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+  <Card title="Annotation-аар bean бүртгэх" icon="at" href="/core/annotations">
+    `@Component`, `@Service`, `@Repository`, `@Controller`, `@Autowired`, `@Qualifier`,
+    `@Scope`, `@PostConstruct`, `@PreDestroy`.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Lifecycle ба scope" icon="circle-nodes" href="/core/lifecycle">
+    `@PostConstruct` / `@PreDestroy` hook, `AutoCloseable` контейнер, `strictScope`
+    режимд `BeanScopeException`.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Reflection caching" icon="bolt" href="/performance/reflection-cache">
+    Класс тус бүрд field, constructor, lifecycle method-уудыг нэг удаа тооцож кэшилнэ.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Real benchmark" icon="gauge-high" href="/performance/benchmarks">
+    `BenchmarkRunner` warmup, p50/p95-тэй startup ба lookup хэмжилт хийж JSON/Markdown
+    тайлан үүсгэнэ.
+  </Card>
+  <Card title="Spring vs Guice харьцуулалт" icon="scale-balanced" href="/performance/comparison">
+    Feature болон төсөөтэй performance шинж тэмдэг дээр харьцуулсан хүснэгт.
+  </Card>
+  <Card title="Архитектур ба DX" icon="diagram-project" href="/architecture/overview">
+    Container lifecycle, scope management, "did-you-mean" сэрэмжлүүлэг, dependency tree
+    HTML визуалчлал.
   </Card>
 </Columns>
 
-## Create beautiful pages
+## Шүүмжид өгсөн хариу
 
-Everything you need to create world-class documentation.
+Дипломын шүүмжид дурдсан 6 сул талыг доорх байдлаар шийдсэн.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+| Шүүмжийн санаа | Энэ хувилбар дээрх шийдэл |
+| --- | --- |
+| Шинэлэг тал сул, Spring/Guice-ийг давтсан | Reflection cache, deterministic scan, "did-you-mean", builder-фасад, scope-strict режим |
+| Performance, scalability, memory үнэлгээ байхгүй | `mn.edu.num.benchmark` модуль, JSON/Markdown тайлантай startup ба lookup [бенчмарк](/performance/benchmarks) |
+| Reflection-ийн зардал ба runtime алдааны дүгнэлт сул | [Reflection cache](/performance/reflection-cache) хуудас, дутуу bean үед "did-you-mean" зөвлөмж |
+| Lifecycle, scope management-ийн дизайн дүгнэлт сул | [Lifecycle](/core/lifecycle), [Scope](/core/scopes), [Design decisions](/architecture/design-decisions) хуудас |
+| DX (Developer Experience) үнэлгээ бага | [Error messages](/dx/error-messages), [Visualization](/dx/visualization), [Troubleshooting](/dx/troubleshooting) |
+| Spring/Guice-тэй харьцуулалт feature/benchmark байхгүй | [Feature comparison](/performance/comparison) хуудас |
 
-## Make your content agent ready
-
-Make your docs work for humans and AI agents alike.
+## Дараа юу хийх вэ
 
 <Columns cols={2}>
-  <Card
-    title="Prompt component"
-    icon="robot"
-    href="/agent-ready/prompt"
-  >
-    Embed shareable AI prompts readers can copy or open in Cursor.
+  <Card title="Суулгах" icon="download" href="/install">
+    Maven `pom.xml` дээр шууд орлуулах, Java 17 шаардлага.
   </Card>
-  <Card
-    title="Visibility"
-    icon="eye"
-    href="/agent-ready/visibility"
-  >
-    Show different content to humans and agents reading your docs.
-  </Card>
-  <Card
-    title="Contextual menu"
-    icon="bolt"
-    href="/agent-ready/contextual"
-  >
-    Give readers one-click access to Claude, ChatGPT, Cursor, and more.
-  </Card>
-  <Card
-    title="AI coding tools"
-    icon="wand-magic-sparkles"
-    href="/ai-tools/claude-code"
-  >
-    Set up Claude Code, Cursor, or Windsurf with Mintlify's skill.
+  <Card title="Хурдан эхлэх" icon="bolt-lightning" href="/quickstart">
+    5 минутад эхний bean-ээ бүртгэж, `@EnableIoC` ашиглан startup хий.
   </Card>
 </Columns>
-
-## Need inspiration?
-
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>

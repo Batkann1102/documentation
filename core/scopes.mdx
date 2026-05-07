@@ -1,0 +1,77 @@
+---
+title: "Bean scope"
+description: "Singleton, prototype scope болон strictScope горимын тайлбар."
+icon: "layer-group"
+---
+
+## Scope ялгал
+
+`thesis-java-framework` нь хоёр scope-г дэмжинэ.
+
+| Scope | Тайлбар | Анхдагч |
+| --- | --- | --- |
+| `SINGLETON` | Контейнерт ганц инстанс. Бүх dependent-уудад нэг inst дамжина. | ✓ |
+| `PROTOTYPE` | `getBean(...)` дуудах болгонд шинэ инстанс үүсгэнэ. | |
+
+```java
+@Service                                  // SINGLETON
+public class CacheService {}
+
+@Service @Scope("prototype")              // PROTOTYPE
+public class WorkerTask {}
+```
+
+```java
+WorkerTask t1 = ctx.getBean(WorkerTask.class);
+WorkerTask t2 = ctx.getBean(WorkerTask.class);
+assert t1 != t2; // өөр инстанс
+```
+
+## Үл мэдэгдэх scope-ийн боловсруулалт
+
+`@Scope("session")` шиг танигдахгүй утга өгвөл:
+
+<Tabs>
+  <Tab title="strictScope=false (default)">
+    Контейнер `WARNING` бичээд SINGLETON руу буцаана. Урагшаа аюулгүй боловч
+    хөгжүүлэгчид амархан анзаарагдахгүй байх эрсдэлтэй.
+
+    ```text
+    [Context] WARNING: bean 'invalidScopeService' дээрх @Scope('random') нь танигдахгүй;
+                       SINGLETON-ыг ашиглана.
+    ```
+  </Tab>
+  <Tab title="strictScope=true">
+    `BeanScopeException` шидэгдэнэ. Production-д тохирох "fail fast" горим.
+
+    ```text
+    Exception: BeanScopeException: bean 'invalidScopeService' дээр танигдахгүй scope='random'
+    ```
+  </Tab>
+</Tabs>
+
+```java
+ApplicationContext ctx = ApplicationContextBuilder.builder()
+        .basePackage("com.example.app")
+        .strictScope(true)
+        .build();
+```
+
+эсвэл annotation хувилбар:
+
+```java
+@EnableIoC(basePackage = "com.example.app", strictScope = true)
+public class App {}
+```
+
+<Warning>
+  `strictScope=true` нь зөвхөн scope утга бичигдсэн боловч буруу үед триггер хийнэ. `@Scope`
+  огт байхгүй бол default SINGLETON хэвээр.
+</Warning>
+
+## Дизайн дүгнэлт
+
+Spring-ээс ялгаатай нь `request`, `session`, `application` scope-уудыг зориуд хасаагүй —
+энэ фреймворк нь web-агностик контейнер. Веб контекст нэмэхийн оронд `prototype` scope-ийг
+factory pattern-аар шийдэхийг зөвлөнө. Дэлгэрэнгүйг
+[Design decisions](/architecture/design-decisions) хуудснаас үзнэ үү.

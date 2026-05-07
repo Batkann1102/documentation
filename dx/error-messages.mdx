@@ -1,0 +1,77 @@
+---
+title: "Алдаа ба 'did-you-mean'"
+description: "BeanNotFoundException үед Levenshtein distance ашиглаж зөвлөмж буцаах механизм."
+icon: "triangle-exclamation"
+---
+
+## Зорилго
+
+IoC контейнерын хамгийн нийтлэг алдаа нь bean нэрийг буруу бичих эсвэл `@Component` тэмдэглээгүй
+класс ашиглах юм. Spring/Guice-д энэ үед "Bean not found" гэх мэт хатуу зурвас гардаг тул
+шинэ хэрэглэгчид тэрхүү алдаа дээр их цаг алддаг.
+
+`thesis-java-framework` нь алдаатай нэрийг **бүртгэгдсэн bean-ын нэрсээс хамгийн ойр**
+байгааг Levenshtein distance ашиглан санал болгоно.
+
+## Жишээ output
+
+```text
+mn.edu.num.exception.BeanNotFoundException:
+  Bean олдсонгүй: 'usrSrvce'. Магадгүй та 'userService'-г санасан уу?
+```
+
+```text
+Bean олдсонгүй: 'orderRpo'. Магадгүй та 'orderRepository'-г санасан уу?
+```
+
+```text
+Bean олдсонгүй: 'paymntsvc'. Магадгүй та 'paymentService'-г санасан уу?
+```
+
+## Алгоритм
+
+`Levenshtein.distance(a, b)` нь хоорондын хамгийн бага оруулга/устгал/орлуулгын тоог буцаана.
+
+```java
+int d = Levenshtein.distance("usrSrvce", "userService"); // 4
+```
+
+Регистр шалгахаас өмнө хоёр string-ийг **lowercase** болгож харьцуулна. Иймд `OrderSrv`
+(uppercase) ↔ `orderService` гэсэн хоёр string-ыг ижил эхэрхэт байдалтай тооцно.
+
+### Сонголтын thresh
+
+`BeanRegistry#suggestSimilar(name)` нь:
+
+1. Бүх bean-ы нэрсийг түүчээллэн distance-ыг тооцно
+2. Хамгийн жижиг distance-тай нэрийг сонгоно
+3. Хэрэв distance > `name.length() / 2 + 2` бол санал болгохгүй (хэт хол)
+
+Энэ нь "огт огт өөр" нэрийг "магадгүй та X-ийг санасан уу?" гэж өмөөрөн харуулахаас сэргийлнэ.
+
+## API ашиглах
+
+```java
+try {
+    ctx.getBean("usrSrvce");
+} catch (BeanNotFoundException ex) {
+    System.err.println(ex.getMessage());
+    // → Bean олдсонгүй: 'usrSrvce'. Магадгүй та 'userService'-г санасан уу?
+}
+```
+
+Хэрэв ямар ч ойролцоо нэр олдохгүй бол:
+
+```text
+Bean олдсонгүй: 'qwertyabc'.
+```
+
+## Хязгаарлалт
+
+- Олон bean-ийн нэрсэнд хийх linear scan нь O(N·M) (N — bean тоо, M — нэрийн дундаж урт).
+  Маш том containerт (~1000 bean) ч 1мс-аас хэтрэхгүй ажиллана.
+- Зөвхөн **нэрийн** distance-г үздэг тул interface/тип-ийн зөвлөмж олгохгүй. Тип-ийн
+  алдаанд `BeanCreationException` гарна.
+
+[Lifecycle](/core/lifecycle) ба [Troubleshooting](/dx/troubleshooting) хуудаснаас бусад
+нийтлэг асуудлуудыг үзнэ үү.

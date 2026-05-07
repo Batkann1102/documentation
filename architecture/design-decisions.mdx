@@ -1,0 +1,82 @@
+---
+title: "Design decisions"
+description: "Container архитектурын гол сонголтуудын тайлбар, trade-off-ууд."
+icon: "compass-drafting"
+---
+
+## Reflection-г үлдээх vs codegen хийх
+
+| Сонголт | Plus | Minus |
+| --- | --- | --- |
+| **Reflection (сонгосон)** | Build pipeline энгийн, JVM-д шууд ажиллана. Annotation-ыг scan хийж шууд handle. | Анхны invocation удаан, runtime алдаа компайл хугацаанд илрэхгүй. |
+| Codegen (Dagger 2 загвараар) | Зероо runtime reflection. Compile-time бүх dependency валидаци. | Annotation processor + plugin шаардана, jar size томрох. |
+
+Бид reflection-ийг сонгож, оронд нь `ReflectionCache`-р зардлыг minimize хийсэн. Шүүмжид
+дурдсан "reflection-ийн сул талыг шинжлэх" асуудлыг
+[Reflection cache](/performance/reflection-cache) хуудсаар нээж тайлбарласан.
+
+## Singleton ба prototype-аас өөр scope нэмэхгүй
+
+`request`, `session`, `application` гэх мэт web-д суурилсан scope нь HTTP context-аас
+хамаарна. Энэ фреймворк нь web-агностик тул:
+
+- Хатуу хэрэгтэй бол үндсэн singleton-аас доош factory pattern ашиглах
+- Цаашдаа `@Scope("custom")` API нэмэхээр буурсан surface-тэй
+
+scope-уудыг зориуд оруулаагүй. `strictScope` нь үл мэдэгдэх scope утгыг fail-fast болгож,
+хөгжүүлэгчийн алдаа стартап үед илрэхэд тусална.
+
+## `try-with-resources` биш handler API биш
+
+Lifecycle hook-уудыг "shutdown handler"-ийн жагсаалт болгож, runtime-д register хийх option
+байсан. Гэхдээ:
+
+- `AutoCloseable`-тай зэргэлдэх `try-with-resources` нь Java-ийн стандарт хэв маяг
+- Hook-ыг class-level annotation-аар тодорхойлох нь bean-ы өөрийнх нь дотоод хэрэгцээтэй ойр
+
+тул `@PreDestroy`-г хэвлэдсэн annotation хувилбараар үлдээсэн.
+
+## `@PreDestroy`-ийн reverse order
+
+Bean-уудыг үүссэн дарааллаар нь reverse order-оор teardown хийнэ. Учир нь dependency tree-н
+доор гэхэд:
+
+```
+A → B → C
+```
+
+A нь B-ээс хамаарна → A-г teardown хийхээс өмнө B бэлэн байх ёстой → B-г өмнө хааж болохгүй.
+Иймд `[A, B, C]` дараалалтай үүссэн bean-уудыг `[C, B, A]` дарааллаар хаана. Энэ нь
+`creationOrder` массиваас reverse iteration хийх замаар хэрэгжсэн.
+
+## Buidler API-ийг яагаад нэмсэн
+
+`@EnableIoC` annotation нь компайл хугацаандаа тогтсон тохиргоо боловч test, динамик
+deployment scenario-нуудад dynamic config хэрэгтэй болдог. Иймд:
+
+```java
+ApplicationContext ctx = ApplicationContextBuilder.builder()
+        .basePackage(System.getenv("ROOT_PKG"))
+        .lazyInit(Boolean.parseBoolean(System.getenv("LAZY_INIT")))
+        .build();
+```
+
+шиг runtime тохиргоонд зориулж `ApplicationContextBuilder` нэмэв. Annotation болон builder
+нь хоёулаа адил `ApplicationContext` constructor-руу очиж API-ийн тууш зурвас үлдээгдэв.
+
+## Scanner-ийн файл sort
+
+Файл системийн `Files.list(...)` нь OS-аас хамаарч өөр өөр дарааллаар буцаах эрсдэлтэй. Энэ
+нь:
+
+- `creationOrder` өөрчлөгдөнө → `@PreDestroy` reverse order ч таамаглах боломжгүй
+- Test-д flakiness үүсгэнэ (нэг машин дээр амжилттай, өөр машин дээр алдаа)
+
+тул `Files.list(...).sorted(Comparator.naturalOrder())` хийсэн. Lexicographic sort нь
+class-loading order-ыг бүрэн determined болгоно.
+
+## Алдааны мэдэгдэл — "did-you-mean"
+
+Bean нэрийн алдаа нь IoC хэрэглэгчийн хамгийн нийтлэг блок. Levenshtein distance ашиглан
+1-2 алхамын дотор байгаа нэрийг санал болгох нь UX-ыг мэдэгдэхүйц сайжруулна. Дэлгэрэнгүйг
+[Error messages](/dx/error-messages) хуудаснаас үзнэ үү.

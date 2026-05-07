@@ -1,0 +1,75 @@
+---
+title: "ApplicationContextBuilder"
+description: "Fluent API ашиглаж програмаар ApplicationContext тохируулах."
+icon: "wrench"
+---
+
+`ApplicationContextBuilder` нь `@EnableIoC` annotation-ы орлуулагч fluent API. Тестэд,
+динамик scenario-нуудад тохиромжтой.
+
+## Үндсэн жишээ
+
+```java
+import mn.edu.num.container.ApplicationContext;
+import mn.edu.num.container.ApplicationContextBuilder;
+
+ApplicationContext ctx = ApplicationContextBuilder.builder()
+        .basePackage("com.example.app")
+        .excludePackages("com.example.app.legacy", "com.example.app.tools")
+        .lazyInit(true)
+        .strictScope(true)
+        .visualize(false)
+        .build();
+```
+
+## Method тайлбар
+
+| Method | Тайлбар |
+| --- | --- |
+| `basePackage(String)` | Scan хийх root package. Хоосон бол `IllegalStateException`. |
+| `excludePackages(String...)` | Bean болохгүй гэж хасах sub-package-ууд. |
+| `lazyInit(boolean)` | `true` бол singleton-уудыг анх getBean үед үүсгэнэ. Default `false`. |
+| `strictScope(boolean)` | `true` бол үл мэдэгдэх `@Scope` утга үед `BeanScopeException`. Default `false`. |
+| `visualize(boolean)` | `true` бол build хийгдсэний дараа dependency tree-г HTML хэлбэрээр нээнэ. |
+| `build()` | `ApplicationContext` буцаана. |
+
+## `@EnableIoC`-тай ялгаа
+
+| Зорилго | `@EnableIoC` | `ApplicationContextBuilder` |
+| --- | --- | --- |
+| Compile-time bootstrap | ✓ | |
+| Test эсвэл script-д ашиглах | | ✓ |
+| Тохиргоог dynamic-аар уншуулах (env, args) | | ✓ |
+| Олон context зэрэг ачаалах | хязгаарлагдмал | ✓ |
+
+```java
+@Test
+void shouldStartLazy() {
+    try (ApplicationContext ctx = ApplicationContextBuilder.builder()
+            .basePackage("mn.edu.num.app.scope")
+            .lazyInit(true)
+            .build()) {
+        assertTrue(ctx.isLazyInit());
+    }
+}
+```
+
+## visualize=true
+
+Энэ flag нь build хийсний дараа `DependencyTreeHtmlExporter`-г дуудаж dependency tree-г
+HTML файл болгож үүсгэнэ. Default browser нээж графикаар үзэх боломжтой.
+
+```java
+ApplicationContext ctx = ApplicationContextBuilder.builder()
+        .basePackage("com.example.app")
+        .visualize(true)
+        .build();
+```
+
+[Visualization](/dx/visualization) хуудаснаас screenshot-уудыг үзнэ үү.
+
+## Builder-ыг яагаад нэмсэн вэ?
+
+Шүүмжид «`@EnableIoC`-аас бусад арга байхгүй, builder зэрэг fluent API-ийг сорьж үзвэл DX
+сайжирна» гэж дурдсан. Мөн test-ээс олон context зэрэг ачаалах, environment-ээс хамаарч
+тохиргоо солих гэх мэт хэрэгцээний зайг хаасан.

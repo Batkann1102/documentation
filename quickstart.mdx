@@ -1,81 +1,127 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
-icon: 'rocket'
+title: "Хурдан эхлэх"
+description: "5 минутад эхний application context-ээ бүртгэж, bean injection хий."
+icon: "bolt-lightning"
 ---
 
-## Get started in three steps
+## 1. Bean class тодорхойлох
 
-Get your documentation site running locally and make your first customization.
+<CodeGroup>
+```java UserRepository.java
+package mn.edu.num.app.demo;
 
-### Step 1: Set up your local environment
+import mn.edu.num.annotation.Repository;
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+@Repository
+public class UserRepository {
+    public String findById(long id) {
+        return "user#" + id;
+    }
+}
+```
 
-### Step 2: Deploy your changes
+```java UserService.java
+package mn.edu.num.app.demo;
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+import mn.edu.num.annotation.Autowired;
+import mn.edu.num.annotation.Service;
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+@Service
+public class UserService {
+    @Autowired
+    private UserRepository repo;
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+    public String hello(long id) {
+        return "Hi, " + repo.findById(id);
+    }
+}
+```
+</CodeGroup>
 
-### Step 3: Go live
+## 2. `@EnableIoC` тэмдэглэгээ
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+```java DemoApp.java
+package mn.edu.num.app.demo;
 
-## Next steps
+import mn.edu.num.annotation.EnableIoC;
+import mn.edu.num.container.ApplicationContext;
 
-Now that you have your docs running, explore these key features:
+@EnableIoC(basePackage = "mn.edu.num.app.demo")
+public class DemoApp {
+    public static void main(String[] args) {
+        try (ApplicationContext ctx = new ApplicationContext(DemoApp.class)) {
+            UserService svc = ctx.getBean(UserService.class);
+            System.out.println(svc.hello(42));
+        }
+    }
+}
+```
 
-<CardGroup cols={2}>
+<Tip>
+  `try-with-resources`-д хийснээр контейнер хаагдахад бүх `@PreDestroy` метод дуугарна.
+  Дэлгэрэнгүйг [Lifecycle](/core/lifecycle) хуудаснаас үзнэ үү.
+</Tip>
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+## 3. Builder API ашиглан startup
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+`@EnableIoC`-н оронд програмаар тохируулах бол:
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+```java
+ApplicationContext ctx = ApplicationContextBuilder.builder()
+        .basePackage("mn.edu.num.app.demo")
+        .lazyInit(true)
+        .strictScope(true)
+        .build();
+```
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+[Builder API](/core/builder) дээр lazy init, strict scope, dependency tree HTML-аар нээх
+зэрэг бүх сонголтын тайлбар бий.
 
-</CardGroup>
+## 4. Bean lookup
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+```java
+UserService byType  = ctx.getBean(UserService.class);
+UserService byName  = (UserService) ctx.getBean("userService");
+```
+
+`getBean(name)` дуудлагад нэр буруу байвал `BeanNotFoundException` болж "did you mean"
+зөвлөмж буцаана. Жишээ нь:
+
+```text
+Bean олдсонгүй: 'usrSrvce'. Магадгүй та 'userService'-г санасан уу?
+```
+
+Дэлгэрэнгүйг [Error messages](/dx/error-messages) хуудаснаас үзнэ үү.
+
+## 5. Жишээ output
+
+```text
+[Context] Эхэлж байна... package: mn.edu.num.app.demo
+[Scanner] Илэрлээ: userRepository → mn.edu.num.app.demo.UserRepository
+[Scanner] Илэрлээ: userService → mn.edu.num.app.demo.UserService
+ApplicationContext
+ ├─ userRepository (SINGLETON)
+ └─ userService (SINGLETON)
+
+[Context] Container бэлэн боллоо.
+Hi, user#42
+[Context] close() — @PreDestroy дуудаж байна...
+[Context] Container хаагдлаа.
+```
+
+## Дараа юу үзэх вэ
+
+<Columns cols={2}>
+  <Card title="Annotation-уудын тайлбар" icon="at" href="/core/annotations">
+    Бүх annotation болон тэдгээрийн утга
+  </Card>
+  <Card title="Lifecycle hook" icon="circle-nodes" href="/core/lifecycle">
+    `@PostConstruct`, `@PreDestroy` ашиглах
+  </Card>
+  <Card title="Constructor injection" icon="syringe" href="/core/constructor-injection">
+    `@Autowired` constructor дээр
+  </Card>
+  <Card title="Бенчмарк" icon="gauge-high" href="/performance/benchmarks">
+    Startup ба lookup-ын бодит хэмжилт
+  </Card>
+</Columns>

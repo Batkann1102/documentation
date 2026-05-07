@@ -1,0 +1,132 @@
+---
+title: "Troubleshooting"
+description: "thesis-java-framework ашиглах үед нийтлэг гарч болзошгүй алдаанууд ба засварлах зөвлөмжүүд."
+icon: "life-ring"
+---
+
+## Bean олдсонгүй
+
+```text
+mn.edu.num.exception.BeanNotFoundException:
+  Bean олдсонгүй: 'usrSrvce'. Магадгүй та 'userService'-г санасан уу?
+```
+
+**Шалтгаан:** Нэрээр хайхад буруу бичсэн эсвэл класс scan хийгдэх package-аас гадуур байна.
+
+**Засвар:**
+1. `@Component`/`@Service` annotation тэмдэглэсэн эсэхийг шалгах
+2. `@EnableIoC(basePackage = "...")`-ийг тус класс агуулсан package руу заасан эсэх
+3. "Магадгүй та X..." гэсэн зөвлөмжийг ашиглах
+
+## Тойрог хамаарал илэрлээ
+
+```text
+mn.edu.num.exception.BeanCreationException:
+  Тойрог хамаарал илэрлээ: alpha | Үүсгэгдэж байгаа: [alpha, beta, gamma]
+```
+
+**Шалтгаан:** A → B → C → A гэсэн dependency loop үүссэн.
+
+**Засвар:**
+- Dependency tree-г өөрчилж, нэг талыг event-bus, factory, эсвэл setter injection-аар оруулах
+- Constructor injection-аас field injection руу шилжүүлж late-bind-аар асуудлыг хойшлуулах
+- [Visualization](/dx/visualization) ашиглан loop-ыг graphically тогтоох
+
+## Олон bean ижил тип
+
+```text
+BeanCreationException: Multiple beans of type 'PaymentGateway' олдлоо: [stripe, paypal]
+```
+
+**Шалтгаан:** Нэг interface-ийг 2+ bean implement хийсэн боловч `@Qualifier` өгөөгүй.
+
+**Засвар:**
+```java
+@Autowired
+@Qualifier("stripe")
+private PaymentGateway gateway;
+```
+
+## `BeanScopeException`
+
+```text
+mn.edu.num.exception.BeanScopeException:
+  bean 'invalidScopeService' дээр танигдахгүй scope='session'
+```
+
+**Шалтгаан:** `strictScope=true` идэвхтэй ба `@Scope("session")` шиг танигдахгүй утга өгсөн.
+
+**Засвар:**
+- `@Scope("singleton")` эсвэл `@Scope("prototype")`-аар солих
+- Эсвэл `strictScope`-ыг `false` болгож warning хэлбэрээр үлдээх
+
+## `@PostConstruct`/`@PreDestroy` дуугарахгүй
+
+**Шалтгаан:** Метод нь параметр авч буй эсвэл `void` биш.
+
+**Засвар:** Метод сигнатураа `void method() throws Exception` болго.
+
+```java
+@PostConstruct
+public void init() { ... }                  // ✓
+
+@PostConstruct
+public void init(SomeDep d) { ... }         // ✗ — параметр зөвшөөрөгдөхгүй
+
+@PostConstruct
+public boolean init() { return true; }      // ✗ — буцаах төрөл байж болохгүй
+```
+
+## Container хаагдсан
+
+```text
+java.lang.IllegalStateException: Container хаагдсан байна.
+```
+
+**Шалтгаан:** `close()` дуудагдсан context дээр `getBean(...)` дуудаж байна.
+
+**Засвар:**
+- `try-with-resources`-нд `getBean(...)` дуудлагыг хадгалах
+- Жинхэнэ resource holder-уудыг өөр scope-руу шилжүүлэх
+
+## Maven `mvn test` алдаа гарвал
+
+```bash
+mvn -X test
+```
+
+`-X` debug log нь test-ын classpath, surefire тохиргоог дэлгэрэнгүй харуулна. Энгийн
+шалтгаанууд:
+
+| Алдаа | Засвар |
+| --- | --- |
+| `JAVA_HOME` not Java 17 | `JAVA_HOME=/path/to/jdk-17` болго |
+| `ClassNotFoundException` | `mvn -DskipTests package`-ыг scope-аас өмнө ажиллуул |
+| `tests skipped` | surefire 3.x пакетийн forkCount = 0 байгаа эсэхийг шалга |
+
+## Benchmark-д bean олдсонгүй
+
+```text
+[Benchmark] Skipping startup measurement: Benchmark-д bean байхгүй
+```
+
+**Шалтгаан:** `--package` өгсөн package доор `@Component`/`@Service` класс байхгүй.
+
+**Засвар:** Test-classes доорх sample bean-уудыг classpath-д нэмэх:
+
+```bash
+java -cp target/thesis-java-framework-1.0.0.jar:target/test-classes \
+     mn.edu.num.benchmark.BenchmarkRunner \
+     --package mn.edu.num.app.scope
+```
+
+[Benchmark](/performance/benchmarks) хуудсаас CLI parameters болон тайлангийн форматын
+дэлгэрэнгүйг үзнэ үү.
+
+## Хэрэгтэй тэмдэглэл
+
+| Зорилго | Холбоос |
+| --- | --- |
+| API лавлагаа | `mvn javadoc:javadoc` |
+| Issue/feedback | [GitHub Issues](https://github.com/Batkann1102/thesis-java-framework/issues) |
+| Pull request | [Open PRs](https://github.com/Batkann1102/thesis-java-framework/pulls) |

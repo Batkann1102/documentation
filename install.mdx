@@ -1,0 +1,76 @@
+---
+title: "Суулгах"
+description: "thesis-java-framework-ийг Maven төсөл дээр суулгаж, JAR хэлбэрээр ашиглах заавар."
+icon: "download"
+---
+
+## Шаардлага
+
+<Steps>
+  <Step title="Java 17">
+    Фреймворк Java 17 release дээр компайлдсан тул `JAVA_HOME` Java 17+ заасан байх ёстой.
+
+    ```bash
+    java -version
+    mvn -v
+    ```
+  </Step>
+  <Step title="Maven 3.6+">
+    Build tool — `mvn` нь classpath дээр байх шаардлагатай.
+  </Step>
+</Steps>
+
+## Source-аас build хийх
+
+<CodeGroup>
+```bash Linux/macOS
+git clone https://github.com/Batkann1102/thesis-java-framework.git
+cd thesis-java-framework
+mvn -DskipTests package
+```
+
+```powershell Windows
+git clone https://github.com/Batkann1102/thesis-java-framework.git
+cd thesis-java-framework
+mvn -DskipTests package
+```
+</CodeGroup>
+
+`target/thesis-java-framework-1.0.0.jar` үүсэх ба өөрийн төсөлдөө classpath-аар нэмэх боломжтой.
+
+## Maven төсөл дээр шууд оруулах
+
+`pom.xml` файл дээрээ доорх dependency-г нэмнэ. Энэ нь GitHub Packages эсвэл Maven Central-д
+publish хийгдсэний дараа жинхэнэ ашиглалтад орох боловч одоогоор `system` scope ашиглан
+build хийсэн JAR-аа холбож болно:
+
+```xml pom.xml (system scope, түр зуурын)
+<dependency>
+  <groupId>mn.edu.num</groupId>
+  <artifactId>thesis-java-framework</artifactId>
+  <version>1.0.0</version>
+  <scope>system</scope>
+  <systemPath>${project.basedir}/libs/thesis-java-framework-1.0.0.jar</systemPath>
+</dependency>
+```
+
+<Tip>
+  Production-д ашиглахдаа [GitHub Packages](https://github.com/Batkann1102/thesis-java-framework/packages)
+  эсвэл Maven Central руу publish хийсний дараа `system` scope-оо хасна.
+</Tip>
+
+## Build шалгах
+
+```bash
+mvn test
+```
+
+Бүх 85 тест ногоон өнгөтэй гарвал суулгалт амжилттай. Дэлгэрэнгүйг
+[`target/surefire-reports`](https://maven.apache.org/surefire/maven-surefire-plugin/) хавтаснаас
+харна.
+
+## Дараагийн алхам
+
+<Card title="Хурдан эхлэх" icon="bolt-lightning" href="/quickstart">
+  5 минутад эхний application context-ээ ажиллуулна.
+</Card>
